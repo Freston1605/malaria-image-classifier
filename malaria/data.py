@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
-import torchvision.transforms as transforms
+from torchvision import transforms
 import lightning as L
 
 
@@ -57,49 +57,73 @@ class TestDataset(Dataset):
 
 class MalariaDataModule(L.LightningDataModule):
     """
-    Lightning DataModule for malaria cell classification.
-    Handles setup and loading of training and test datasets with transforms.
-    Provides train and test dataloaders for Lightning workflows.
+    PyTorch Lightning DataModule for loading and preprocessing the malaria dataset.
     """
 
-    def __init__(self, train_csv, train_img_dir, test_img_dir, batch_size=32):
+    def __init__(
+        self,
+        data_dir,
+        batch_size=32,
+        num_workers=4,
+        train_csv="train.csv",
+        train_img_dir="train_images",
+        test_img_dir="test_images",
+    ):
         super().__init__()
-        self.train_csv = train_csv
-        self.train_img_dir = train_img_dir
-        self.test_img_dir = test_img_dir
+        self.data_dir = data_dir
         self.batch_size = batch_size
-        self.transform = transforms.Compose(
+        self.num_workers = num_workers
+
+        # Paths for CSV and image directories
+        self.train_csv = os.path.join(data_dir, train_csv)
+        self.train_img_dir = os.path.join(data_dir, train_img_dir)
+        self.test_img_dir = os.path.join(data_dir, test_img_dir)
+
+        # Add RandomRotation for tilting augmentation
+        self.train_transforms = transforms.Compose(
             [
-                transforms.Resize((64, 64)),
+                transforms.RandomRotation(
+                    degrees=20
+                ),  # Tilting images by up to ±20 degrees
+                transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
+                transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3),
             ]
         )
+        self.val_transforms = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3),
+            ]
+        )
+        self.test_transforms = self.val_transforms
         self.train_dataset = None
+        self.val_dataset = None
         self.test_dataset = None
 
     def setup(self, stage=None):
         """
-        Initializes the training and test datasets for the data module.
-
-        Args:
-            stage (str, optional): Stage to set up. Defaults to None.
-
-        Sets:
-            self.train_dataset: An instance of MalariaDataset initialized with training CSV, 
-            image directory, and transforms.
-            self.test_dataset: An instance of TestDataset initialized with test image directory, 
-            list of PNG files, and transforms.
+        Sets up the datasets for training, validation, and testing.
+        This method is called by Lightning at the appropriate time.
         """
-        self.train_dataset = MalariaDataset(
-            self.train_csv, self.train_img_dir, transform=self.transform
-        )
-        test_files = [f for f in os.listdir(self.test_img_dir) if f.endswith(".png")]
-        self.test_dataset = TestDataset(
-            self.test_img_dir, test_files, transform=self.transform
-        )
+        if stage == "fit" or stage is None:
+            self.train_dataset = MalariaDataset(
+                csv_file=self.train_csv,
+                img_dir=self.train_img_dir,
+                transform=self.train_transforms,
+            )
+            self.val_dataset = MalariaDataset(
+                csv_file=self.train_csv,
+                img_dir=self.train_img_dir,
+                transform=self.val_transforms,
+            )
+        if stage == "test" or stage is None:
+            test_files = [
+                f for f in os.listdir(self.test_img_dir) if f.endswith(".png")
+            ]
+            self.test_dataset = TestDataset(
+                self.test_img_dir, test_files, transform=self.test_transforms
+            )
 
     def train_dataloader(self):
         """
@@ -111,7 +135,12 @@ class MalariaDataModule(L.LightningDataModule):
         Returns:
             DataLoader: A DataLoader object for iterating over the training dataset in batches.
         """
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(
+            self.train_dataset,
+            batch_size=self.batch_size,
+            shuffle=True,
+            num_workers=self.num_workers,
+        )
 
     def test_dataloader(self):
         """
@@ -123,4 +152,9 @@ class MalariaDataModule(L.LightningDataModule):
         Returns:
             DataLoader: A DataLoader object for iterating over the test dataset.
         """
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False)
+        return DataLoader(
+            self.test_dataset,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+        )
