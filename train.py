@@ -3,6 +3,7 @@ from datetime import datetime
 
 import lightning as L
 import torch
+from lightning.pytorch.callbacks import EarlyStopping
 
 from malaria.data import MalariaDataModule
 from malaria.model import MalariaLitModel
@@ -26,8 +27,19 @@ if __name__ == "__main__":
     # Model
     model = MalariaLitModel(lr=LR)
 
+    early_stop_callback = EarlyStopping(
+        monitor="val_loss",           # Metric to monitor
+        patience=20,                  # "Several decades" interpreted as 20 epochs
+        mode="min",                   # Stop when the monitored metric stops decreasing
+        verbose=True
+    )
+
     # Trainer
-    trainer = L.Trainer(max_epochs=MAX_EPOCHS, accelerator="auto")
+    trainer = L.Trainer(
+        max_epochs=MAX_EPOCHS,
+        accelerator="auto",
+        callbacks=[early_stop_callback],
+    )
     trainer.fit(model, datamodule=data_module)
 
     # plot_training_metrics(trainer)
