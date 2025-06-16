@@ -2,4 +2,5 @@
 .vscode
 submissions/
 dataset/
+data/
 __pycache__
