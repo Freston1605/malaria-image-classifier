@@ -78,9 +78,8 @@ if __name__ == "__main__":
         accelerator="auto",
         callbacks=[early_stop_callback, checkpoint_callback],
         default_root_dir=OUTPUTS_DIR,
-        resume_from_checkpoint=resume_ckpt,
     )
-    trainer.fit(model, datamodule=data_module)
+    trainer.fit(model, datamodule=data_module, ckpt_path=resume_ckpt)
 
     # Save model
     torch.save(model.state_dict(), MODEL_PATH)
