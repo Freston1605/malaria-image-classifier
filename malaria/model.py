@@ -105,5 +105,11 @@ class MalariaLitModel(L.LightningModule):
         Returns:
             torch.optim.Optimizer: An Adam optimizer initialized with the model's parameters and the learning rate specified in self.hparams.lr.
         """
-        
-        return torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
+        scheduler = {
+            'scheduler': torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5),
+            'monitor': 'val_loss',
+            'interval': 'epoch',
+            'frequency': 1
+        }
+        return {'optimizer': optimizer, 'lr_scheduler': scheduler}
