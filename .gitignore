@@ -1,6 +1,6 @@
 .venv
 .vscode
-.odt
-.pdf
+*.odt
+*.pdf
 submission.csv
 dataset/
