@@ -3,7 +3,7 @@ import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
-import pytorch_lightning as pl
+import lightning as L
 
 class MalariaDataset(Dataset):
     def __init__(self, csv_file, img_dir, transform=None):
@@ -40,7 +40,7 @@ class TestDataset(Dataset):
             image = self.transform(image)
         return image, img_name
 
-class MalariaDataModule(pl.LightningDataModule):
+class MalariaDataModule(L.LightningDataModule):
     def __init__(self, train_csv, train_img_dir, test_img_dir, batch_size=32):
         super().__init__()
         self.train_csv = train_csv

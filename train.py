@@ -1,31 +1,41 @@
-import pytorch_lightning as pl
+import os
+
+import lightning as L
+import torch
+
 from malaria.data import MalariaDataModule
 from malaria.model import MalariaLitModel
-from malaria.utils import plot_training_metrics, plot_tsne, extract_embeddings, save_submission
-import torch
-import os
+from malaria.utils import (
+    extract_embeddings,
+    plot_training_metrics,
+    plot_tsne,
+    save_submission,
+)
 
 if __name__ == "__main__":
     # Paths
-    train_csv = "dataset/train_data.csv"
-    train_img_dir = "dataset/train_images"
-    test_img_dir = "dataset/test_images"
-    batch_size = 32
-    max_epochs = 10
-    lr = 1e-3
+    TRAIN_DATA = "dataset/train_data.csv"
+    TRAIN_IMG = "dataset/train_images"
+    TEST_IMG = "dataset/test_images"
+    BATCH_SIZE = 32
+    MAX_EPOCHS = 10
+    LR = 1e-3
 
     # Data
-    data_module = MalariaDataModule(train_csv, train_img_dir, test_img_dir, batch_size=batch_size)
+    data_module = MalariaDataModule(
+        TRAIN_DATA, TRAIN_IMG, TEST_IMG, batch_size=BATCH_SIZE
+    )
 
     # Model
-    model = MalariaLitModel(lr=lr)
+    model = MalariaLitModel(lr=LR)
 
     # Trainer
-    trainer = pl.Trainer(max_epochs=max_epochs, accelerator="auto")
+    trainer = L.Trainer(max_epochs=MAX_EPOCHS, accelerator="auto")
     trainer.fit(model, datamodule=data_module)
 
     # Plot training metrics (optional, can be improved with callbacks)
     # plot_training_metrics(trainer)
+    
 
     # Save model
     torch.save(model.state_dict(), "malaria_cnn.pth")

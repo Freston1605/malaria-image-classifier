@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import pytorch_lightning as pl
+import lightning as L
 import torch.nn.functional as F
 
 class SimpleCNN(nn.Module):
@@ -33,7 +33,7 @@ class SimpleCNN(nn.Module):
         x = self.classifier(x)
         return x, embedding
 
-class MalariaLitModel(pl.LightningModule):
+class MalariaLitModel(L.LightningModule):
     def __init__(self, lr=1e-3):
         super().__init__()
         self.save_hyperparameters()
