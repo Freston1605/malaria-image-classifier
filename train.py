@@ -1,16 +1,13 @@
 import os
+from datetime import datetime
 
 import lightning as L
 import torch
 
 from malaria.data import MalariaDataModule
 from malaria.model import MalariaLitModel
-from malaria.utils import (
-    extract_embeddings,
-    plot_training_metrics,
-    plot_tsne,
-    save_submission,
-)
+from malaria.utils import (extract_embeddings, plot_training_metrics,
+                           plot_tsne, save_submission)
 
 if __name__ == "__main__":
     # Paths
@@ -33,12 +30,15 @@ if __name__ == "__main__":
     trainer = L.Trainer(max_epochs=MAX_EPOCHS, accelerator="auto")
     trainer.fit(model, datamodule=data_module)
 
-    # Plot training metrics (optional, can be improved with callbacks)
     # plot_training_metrics(trainer)
-    
+    plot_training_metrics(trainer)
+
 
     # Save model
-    torch.save(model.state_dict(), "malaria_cnn.pth")
+    os.makedirs("outputs/pth", exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    model_path = f"outputs/pth/malaria_cnn_{timestamp}.pth"
+    torch.save(model.state_dict(), model_path)
 
     # Test predictions
     test_loader = data_module.test_dataloader()
@@ -51,7 +51,7 @@ if __name__ == "__main__":
         for batch in test_loader:
             images, names = batch
             images = images.to(device)
-            logits, _ = model(images)
+            logits, _ = model.forward(images)
             batch_preds = logits.argmax(dim=1).cpu().numpy()
             preds.extend(batch_preds)
             img_names.extend(names)
