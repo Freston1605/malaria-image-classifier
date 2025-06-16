@@ -14,22 +14,20 @@ from malaria.utils import (
     save_submission,
 )
 
+# Generate a timestamp for unique model saving
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
 # Define all paths and constants at the top
 DATASET_DIR = "dataset"
 TRAIN_DATA = os.path.join(DATASET_DIR, "train_data.csv")
 TRAIN_IMG = os.path.join(DATASET_DIR, "train_images")
 TEST_IMG = os.path.join(DATASET_DIR, "test_images")
+
 OUTPUTS_DIR = "outputs"
-MODEL_PATH = os.path.join(OUTPUTS_DIR, "malaria_cnn.pth")
+MODEL_PATH = os.path.join(OUTPUTS_DIR, f"malaria_cnn_{timestamp}.pth")
 
 # Create output directory if it doesn't exist
 os.makedirs(OUTPUTS_DIR, exist_ok=True)
-
-# Generate a timestamp for unique model saving
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-# Update model path with timestamp
-MODEL_PATH = f"outputs/pth/malaria_cnn_{timestamp}.pth"
 
 # Hyperparameters
 BATCH_SIZE = 32
@@ -64,11 +62,10 @@ if __name__ == "__main__":
     )
     trainer.fit(model, datamodule=data_module)
 
-    # plot_training_metrics(trainer)
+    # Plot training metrics
     plot_training_metrics(trainer)
 
     # Save model
-
     torch.save(model.state_dict(), MODEL_PATH)
 
     # Test predictions
