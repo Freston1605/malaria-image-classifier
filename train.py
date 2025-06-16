@@ -7,31 +7,53 @@ from lightning.pytorch.callbacks import EarlyStopping
 
 from malaria.data import MalariaDataModule
 from malaria.model import MalariaLitModel
-from malaria.utils import (extract_embeddings, plot_training_metrics,
-                           plot_tsne, save_submission)
+from malaria.utils import (
+    extract_embeddings,
+    plot_training_metrics,
+    plot_tsne,
+    save_submission,
+)
+
+# Define all paths and constants at the top
+DATASET_DIR = "dataset"
+TRAIN_DATA = os.path.join(DATASET_DIR, "train_data.csv")
+TRAIN_IMG = os.path.join(DATASET_DIR, "train_images")
+TEST_IMG = os.path.join(DATASET_DIR, "test_images")
+OUTPUTS_DIR = "outputs"
+MODEL_PATH = os.path.join(OUTPUTS_DIR, "malaria_cnn.pth")
+
+# Create output directory if it doesn't exist
+os.makedirs(OUTPUTS_DIR, exist_ok=True)
+
+# Generate a timestamp for unique model saving
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+# Update model path with timestamp
+MODEL_PATH = f"outputs/pth/malaria_cnn_{timestamp}.pth"
+
+# Hyperparameters
+BATCH_SIZE = 32
+MAX_EPOCHS = 10
+LR = 1e-3
 
 if __name__ == "__main__":
-    # Paths
-    TRAIN_DATA = "dataset/train_data.csv"
-    TRAIN_IMG = "dataset/train_images"
-    TEST_IMG = "dataset/test_images"
-    BATCH_SIZE = 32
-    MAX_EPOCHS = 10
-    LR = 1e-3
-
     # Data
     data_module = MalariaDataModule(
-        TRAIN_DATA, TRAIN_IMG, TEST_IMG, batch_size=BATCH_SIZE
+        data_dir=DATASET_DIR,
+        train_csv=TRAIN_DATA,
+        train_img_dir=TRAIN_IMG,
+        test_img_dir=TEST_IMG,
+        batch_size=BATCH_SIZE,
     )
 
     # Model
     model = MalariaLitModel(lr=LR)
 
     early_stop_callback = EarlyStopping(
-        monitor="val_loss",           # Metric to monitor
-        patience=20,                  # "Several decades" interpreted as 20 epochs
-        mode="min",                   # Stop when the monitored metric stops decreasing
-        verbose=True
+        monitor="val_loss",  # Metric to monitor
+        patience=20,  # "Several decades" interpreted as 20 epochs
+        mode="min",  # Stop when the monitored metric stops decreasing
+        verbose=True,
     )
 
     # Trainer
@@ -45,12 +67,9 @@ if __name__ == "__main__":
     # plot_training_metrics(trainer)
     plot_training_metrics(trainer)
 
-
     # Save model
-    os.makedirs("outputs/pth", exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    model_path = f"outputs/pth/malaria_cnn_{timestamp}.pth"
-    torch.save(model.state_dict(), model_path)
+
+    torch.save(model.state_dict(), MODEL_PATH)
 
     # Test predictions
     test_loader = data_module.test_dataloader()
