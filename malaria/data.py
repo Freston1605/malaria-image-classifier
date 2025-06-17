@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 import lightning as L
@@ -11,6 +11,7 @@ class MalariaDataset(Dataset):
     PyTorch Dataset for malaria cell images with labels.
     Loads image paths and labels from a CSV file and applies optional transforms.
     Each item is a tuple (image, label).
+    Skips unreadable/corrupted images.
     """
 
     def __init__(self, csv_file, img_dir, transform=None):
@@ -25,7 +26,13 @@ class MalariaDataset(Dataset):
         img_name = self.data.iloc[idx]["img_name"]
         label = int(self.data.iloc[idx]["label"])
         img_path = os.path.join(self.img_dir, img_name)
-        image = Image.open(img_path).convert("RGB")
+        try:
+            image = Image.open(img_path).convert("RGB")
+        except (UnidentifiedImageError, OSError):
+            # Optionally, print a warning or log the error
+            print(f"Warning: Could not read image {img_path}, skipping.")
+            # Skip this image by returning the next one (recursive call)
+            return self.__getitem__((idx + 1) % len(self))
         if self.transform:
             image = self.transform(image)
         return image, label
@@ -36,6 +43,7 @@ class TestDataset(Dataset):
     PyTorch Dataset for malaria cell test images (no labels).
     Loads image paths from a file list and applies optional transforms.
     Each item is a tuple (image, img_name).
+    Skips unreadable/corrupted images.
     """
 
     def __init__(self, img_dir, file_list, transform=None):
@@ -49,7 +57,11 @@ class TestDataset(Dataset):
     def __getitem__(self, idx):
         img_name = self.file_list[idx]
         img_path = os.path.join(self.img_dir, img_name)
-        image = Image.open(img_path).convert("RGB")
+        try:
+            image = Image.open(img_path).convert("RGB")
+        except (UnidentifiedImageError, OSError):
+            print(f"Warning: Could not read image {img_path}, skipping.")
+            return self.__getitem__((idx + 1) % len(self))
         if self.transform:
             image = self.transform(image)
         return image, img_name
@@ -62,26 +74,33 @@ class MalariaDataModule(L.LightningDataModule):
 
     def __init__(
         self,
-        data_dir,
-        batch_size=32,
-        num_workers=4,
-        train_csv="train.csv",
-        train_img_dir="train_images",
-        test_img_dir="test_images",
+        data_dir: str = "data",
+        batch_size: int = 32,
+        num_workers: int = 4,
+        image_size: int = 64,
     ):
+        """
+        Args:
+            train_csv (str): Path to the CSV file containing training/validation labels and image names.
+            train_img_dir (str): Directory containing training/validation images.
+            test_img_dir (str): Directory containing test images.
+            batch_size (int): Batch size for DataLoaders.
+            num_workers (int): Number of workers for DataLoaders.
+            image_size (int): Size to which images will be resized.
+        """
         super().__init__()
+        # Initialize paths and parameters
         self.data_dir = data_dir
+        self.train_csv = os.path.join(self.data_dir, "train_data.csv")
+        self.train_img_dir = os.path.join(self.data_dir, "train_images")
+        self.test_img_dir = os.path.join(self.data_dir, "test_images")
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.image_size = image_size
 
-        # Paths for CSV and image directories
-        self.train_csv = os.path.join(data_dir, train_csv)
-        self.train_img_dir = os.path.join(data_dir, train_img_dir)
-        self.test_img_dir = os.path.join(data_dir, test_img_dir)
-
-        # Add RandomRotation for tilting augmentation
         self.train_transforms = transforms.Compose(
             [
+                transforms.Resize((self.image_size, self.image_size)),  # Ensure all images are the same size
                 transforms.RandomRotation(
                     degrees=20
                 ),  # Tilting images by up to ±20 degrees
@@ -92,36 +111,31 @@ class MalariaDataModule(L.LightningDataModule):
         )
         self.val_transforms = transforms.Compose(
             [
+                transforms.Resize((self.image_size, self.image_size)),  # Ensure all images are the same size
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3),
             ]
         )
         self.test_transforms = self.val_transforms
-        self.train_dataset = None
-        self.val_dataset = None
-        self.test_dataset = None
 
     def setup(self, stage=None):
         """
         Sets up the datasets for training, validation, and testing.
         This method is called by Lightning at the appropriate time.
         """
+
         if stage == "fit" or stage is None:
-            self.train_dataset = MalariaDataset(
-                csv_file=self.train_csv,
-                img_dir=self.train_img_dir,
-                transform=self.train_transforms,
+            self.train = MalariaDataset(
+                self.train_csv, self.train_img_dir, transform=self.train_transforms
             )
-            self.val_dataset = MalariaDataset(
-                csv_file=self.train_csv,
-                img_dir=self.train_img_dir,
-                transform=self.val_transforms,
+            self.val = MalariaDataset(
+                self.train_csv, self.train_img_dir, transform=self.val_transforms
             )
         if stage == "test" or stage is None:
             test_files = [
                 f for f in os.listdir(self.test_img_dir) if f.endswith(".png")
             ]
-            self.test_dataset = TestDataset(
+            self.test = TestDataset(
                 self.test_img_dir, test_files, transform=self.test_transforms
             )
 
@@ -136,9 +150,26 @@ class MalariaDataModule(L.LightningDataModule):
             DataLoader: A DataLoader object for iterating over the training dataset in batches.
         """
         return DataLoader(
-            self.train_dataset,
+            self.train,
             batch_size=self.batch_size,
             shuffle=True,
+            num_workers=self.num_workers,
+        )
+
+    def val_dataloader(self):
+        """
+        Returns a DataLoader for the validation dataset.
+
+        This method creates and returns a DataLoader instance for the validation dataset,
+        using the specified batch size and without shuffling the data.
+
+        Returns:
+            DataLoader: A DataLoader object for iterating over the validation dataset.
+        """
+        return DataLoader(
+            self.val,
+            batch_size=self.batch_size,
+            shuffle=False,
             num_workers=self.num_workers,
         )
 
@@ -153,7 +184,7 @@ class MalariaDataModule(L.LightningDataModule):
             DataLoader: A DataLoader object for iterating over the test dataset.
         """
         return DataLoader(
-            self.test_dataset,
+            self.test,
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,

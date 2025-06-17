@@ -20,10 +20,10 @@ timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 # Define all paths and constants at the top
 
 # Input data paths
-DATASET_DIR = "dataset"
-TRAIN_DATA = os.path.join(DATASET_DIR, "train_data.csv")
-TRAIN_IMG = os.path.join(DATASET_DIR, "train_images")
-TEST_IMG = os.path.join(DATASET_DIR, "test_images")
+DATA_DIR = "data"
+TRAIN_DATA = "train_data.csv"
+TRAIN_IMG = "train_images"
+TEST_IMG = "test_images"
 
 # Output paths
 OUTPUTS_DIR = "outputs"
@@ -43,7 +43,7 @@ LR = 1e-3
 if __name__ == "__main__":
     # Data
     data_module = MalariaDataModule(
-        data_dir=DATASET_DIR,
+        data_dir=DATA_DIR,
         train_csv=TRAIN_DATA,
         train_img_dir=TRAIN_IMG,
         test_img_dir=TEST_IMG,
