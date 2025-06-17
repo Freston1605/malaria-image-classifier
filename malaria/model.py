@@ -67,6 +67,27 @@ class MalariaLitModel(L.LightningModule):
         self.log('train_acc', acc, on_step=False, on_epoch=True)
         return loss
 
+    def validation_step(self, batch, batch_idx):
+        """
+        Performs a single validation step on a given batch.
+        Args:
+            batch (Tuple[Tensor, Tensor]): A tuple containing input data (x) and target labels (y).
+            batch_idx (int): Index of the current batch.
+        Returns:
+            Tensor: The computed loss for the current batch.
+        Logs:
+            - 'val_loss': The loss value for the current batch (logged per epoch).
+            - 'val_acc': The accuracy for the current batch (logged per epoch).
+        """
+        
+        x, y = batch
+        logits, _ = self(x)
+        loss = self.criterion(logits, y)
+        acc = (logits.argmax(dim=1) == y).float().mean()
+        self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log('val_acc', acc, on_step=False, on_epoch=True, prog_bar=True)
+        return loss
+
     def test_step(self, batch):
         """
         Performs a single test step on a batch of data.
