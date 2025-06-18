@@ -81,7 +81,8 @@ class MalariaDataModule(L.LightningDataModule):
     ):
         """
         Args:
-            train_csv (str): Path to the CSV file containing training/validation labels and image names.
+            train_csv (str): Path to the CSV file containing training/validation
+            labels and image names.
             train_img_dir (str): Directory containing training/validation images.
             test_img_dir (str): Directory containing test images.
             batch_size (int): Batch size for DataLoaders.
@@ -91,16 +92,24 @@ class MalariaDataModule(L.LightningDataModule):
         super().__init__()
         # Initialize paths and parameters
         self.data_dir = data_dir
-        self.train_csv = os.path.join(self.data_dir, "train_data.csv")
-        self.train_img_dir = os.path.join(self.data_dir, "train_images")
-        self.test_img_dir = os.path.join(self.data_dir, "test_images")
+        self.train_csv_name = "train_data.csv"
+        self.train_img_dir_name = "train_images"
+        self.test_img_dir_name = "test_images"
+        self.train_csv = os.path.join(self.data_dir, self.train_csv_name)
+        self.train_img_dir = os.path.join(self.data_dir, self.train_img_dir_name)
+        self.test_img_dir = os.path.join(self.data_dir, self.test_img_dir_name)
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.image_size = image_size
+        self.train = None
+        self.val = None
+        self.test = None
 
         self.train_transforms = transforms.Compose(
             [
-                transforms.Resize((self.image_size, self.image_size)),  # Ensure all images are the same size
+                transforms.Resize(
+                    (self.image_size, self.image_size)
+                ),  # Ensure all images are the same size
                 transforms.RandomRotation(
                     degrees=20
                 ),  # Tilting images by up to ±20 degrees
@@ -111,7 +120,9 @@ class MalariaDataModule(L.LightningDataModule):
         )
         self.val_transforms = transforms.Compose(
             [
-                transforms.Resize((self.image_size, self.image_size)),  # Ensure all images are the same size
+                transforms.Resize(
+                    (self.image_size, self.image_size)
+                ),  # Ensure all images are the same size
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.5] * 3, std=[0.5] * 3),
             ]
