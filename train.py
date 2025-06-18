@@ -1,3 +1,5 @@
+import os
+
 import lightning as L
 import torch
 from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
@@ -16,9 +18,13 @@ TEST_IMG = "test_images"
 LOGS_DIR = "lightning_logs"
 EXPERIMENT_NAME = "malaria_cnn"
 
+# Last checkpoint path
+LAST_CKPT = None
+
+
 # Hyperparameters
 BATCH_SIZE = 32
-MAX_EPOCHS = 100
+MAX_EPOCHS = 500
 LR = 1e-3
 SEED = 42
 
@@ -28,7 +34,11 @@ if __name__ == "__main__":
     L.seed_everything(SEED, workers=True)
 
     # Logger (standard practice)
-    logger = TensorBoardLogger(save_dir=LOGS_DIR, name=EXPERIMENT_NAME)
+    logger = TensorBoardLogger(
+        save_dir=LOGS_DIR,
+        name=EXPERIMENT_NAME,
+        version=0
+    )
 
     # Data
     data_module = MalariaDataModule(
@@ -55,6 +65,14 @@ if __name__ == "__main__":
         auto_insert_metric_name=False,
     )
 
+    # Find last checkpoint in the logger's checkpoint directory
+    if LAST_CKPT is None:
+        ckpt_dir = os.path.join(LOGS_DIR, logger.name, f"version_{logger.version}", "checkpoints")    
+        if os.path.isdir(ckpt_dir):
+            files = [f for f in os.listdir(ckpt_dir) if f.endswith(".ckpt") and "last" in f]
+            if files:
+                LAST_CKPT = os.path.join(ckpt_dir, sorted(files)[-1])
+
     # Trainer
     trainer = L.Trainer(
         max_epochs=MAX_EPOCHS,
@@ -64,5 +82,4 @@ if __name__ == "__main__":
         deterministic=True,
         default_root_dir=LOGS_DIR,
     )
-    trainer.fit(model, datamodule=data_module)
-    # Checkpoints and logs are now organized under lightning_logs/malaria_cnn/version_N/
+    trainer.fit(model, datamodule=data_module, ckpt_path=LAST_CKPT)
