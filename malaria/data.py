@@ -1,9 +1,10 @@
 import os
+
+import lightning as L
 import pandas as pd
 from PIL import Image, UnidentifiedImageError
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
-import lightning as L
 
 
 class MalariaDataset(Dataset):
