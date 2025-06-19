@@ -10,6 +10,8 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from tensorboard.backend.event_processing.event_accumulator import \
     EventAccumulator
+import ipywidgets as widgets
+from IPython.display import display
 
 
 class EmbeddingVisualizer:
@@ -85,7 +87,7 @@ class EmbeddingVisualizer:
         plt.figure(figsize=(8, 6))
         if overlay == "class":
             scatter = plt.scatter(
-                tsne_emb[:, 0], tsne_emb[:, 1], c=self.labels, cmap="viridis", alpha=0.7
+                tsne_emb[:, 0], tsne_emb[:, 1], c=self.labels, cmap="viridis", alpha=0.7, marker='x'
             )
             plt.legend(
                 *scatter.legend_elements(), title="Class (0=Healthy, 1=Infected)"
@@ -96,16 +98,16 @@ class EmbeddingVisualizer:
         elif overlay == "outcome" and model is not None and dataloader is not None:
             TP, TN, FP, FN = self.compute_outcome_masks(model, dataloader)
             plt.scatter(
-                tsne_emb[TP, 0], tsne_emb[TP, 1], c="green", label="TP", alpha=0.7
+                tsne_emb[TP, 0], tsne_emb[TP, 1], c="green", label="TP", alpha=0.7, marker='x'
             )
             plt.scatter(
-                tsne_emb[TN, 0], tsne_emb[TN, 1], c="blue", label="TN", alpha=0.7
+                tsne_emb[TN, 0], tsne_emb[TN, 1], c="blue", label="TN", alpha=0.7, marker='x'
             )
             plt.scatter(
-                tsne_emb[FP, 0], tsne_emb[FP, 1], c="red", label="FP", alpha=0.7
+                tsne_emb[FP, 0], tsne_emb[FP, 1], c="red", label="FP", alpha=0.7, marker='x'
             )
             plt.scatter(
-                tsne_emb[FN, 0], tsne_emb[FN, 1], c="orange", label="FN", alpha=0.7
+                tsne_emb[FN, 0], tsne_emb[FN, 1], c="orange", label="FN", alpha=0.7, marker='x'
             )
             plt.legend()
             plt.title(
@@ -253,7 +255,7 @@ class EmbeddingVisualizer:
         plt.figure(figsize=(8, 6))
         if overlay == "class":
             scatter = plt.scatter(
-                umap_emb[:, 0], umap_emb[:, 1], c=self.labels, cmap="viridis", alpha=0.7
+                umap_emb[:, 0], umap_emb[:, 1], c=self.labels, cmap="viridis", alpha=0.7, marker='x'
             )
             plt.legend(
                 *scatter.legend_elements(), title="Class (0=Healthy, 1=Infected)"
@@ -262,16 +264,16 @@ class EmbeddingVisualizer:
         elif overlay == "outcome" and model is not None and dataloader is not None:
             TP, TN, FP, FN = self.compute_outcome_masks(model, dataloader)
             plt.scatter(
-                umap_emb[TP, 0], umap_emb[TP, 1], c="green", label="TP", alpha=0.7
+                umap_emb[TP, 0], umap_emb[TP, 1], c="green", label="TP", alpha=0.7, marker='x'
             )
             plt.scatter(
-                umap_emb[TN, 0], umap_emb[TN, 1], c="blue", label="TN", alpha=0.7
+                umap_emb[TN, 0], umap_emb[TN, 1], c="blue", label="TN", alpha=0.7, marker='x'
             )
             plt.scatter(
-                umap_emb[FP, 0], umap_emb[FP, 1], c="red", label="FP", alpha=0.7
+                umap_emb[FP, 0], umap_emb[FP, 1], c="red", label="FP", alpha=0.7, marker='x'
             )
             plt.scatter(
-                umap_emb[FN, 0], umap_emb[FN, 1], c="orange", label="FN", alpha=0.7
+                umap_emb[FN, 0], umap_emb[FN, 1], c="orange", label="FN", alpha=0.7, marker='x'
             )
             plt.legend()
             plt.title("UMAP Embeddings with Prediction Outcomes")
@@ -320,7 +322,7 @@ class EmbeddingVisualizer:
         plt.figure(figsize=(8, 6))
         if overlay == "class":
             scatter = plt.scatter(
-                pca_emb[:, 0], pca_emb[:, 1], c=self.labels, cmap="viridis", alpha=0.7
+                pca_emb[:, 0], pca_emb[:, 1], c=self.labels, cmap="viridis", alpha=0.7, marker='x'
             )
             plt.legend(
                 *scatter.legend_elements(), title="Class (0=Healthy, 1=Infected)"
@@ -329,12 +331,12 @@ class EmbeddingVisualizer:
         elif overlay == "outcome" and model is not None and dataloader is not None:
             TP, TN, FP, FN = self.compute_outcome_masks(model, dataloader)
             plt.scatter(
-                pca_emb[TP, 0], pca_emb[TP, 1], c="green", label="TP", alpha=0.7
+                pca_emb[TP, 0], pca_emb[TP, 1], c="green", label="TP", alpha=0.7, marker='x'
             )
-            plt.scatter(pca_emb[TN, 0], pca_emb[TN, 1], c="blue", label="TN", alpha=0.7)
-            plt.scatter(pca_emb[FP, 0], pca_emb[FP, 1], c="red", label="FP", alpha=0.7)
+            plt.scatter(pca_emb[TN, 0], pca_emb[TN, 1], c="blue", label="TN", alpha=0.7, marker='x')
+            plt.scatter(pca_emb[FP, 0], pca_emb[FP, 1], c="red", label="FP", alpha=0.7, marker='x')
             plt.scatter(
-                pca_emb[FN, 0], pca_emb[FN, 1], c="orange", label="FN", alpha=0.7
+                pca_emb[FN, 0], pca_emb[FN, 1], c="orange", label="FN", alpha=0.7, marker='x'
             )
             plt.legend()
             plt.title("PCA Embeddings with Prediction Outcomes")
@@ -384,3 +386,69 @@ def save_submission(img_names, preds, save_path="submission.csv"):
 
     df = pd.DataFrame({"img_name": img_names, "label": preds})
     df.to_csv(save_path, index=False)
+
+
+class EmbeddingVisualizerUI:
+    """
+    Class to provide an interactive widget-based UI for embedding visualizations in a Jupyter notebook.
+    """
+    def __init__(self, model_class, train_loader, default_checkpoint, default_logdir):
+        self.model_class = model_class
+        self.train_loader = train_loader
+        self.default_checkpoint = default_checkpoint
+        self.default_logdir = default_logdir
+
+    def show(self):
+        checkpoint_widget = widgets.Text(
+            value=self.default_checkpoint, description="Checkpoint:", layout=widgets.Layout(width="80%")
+        )
+        logdir_widget = widgets.Text(
+            value=self.default_logdir, description="Log Dir:", layout=widgets.Layout(width="80%")
+        )
+        perplexity_widget = widgets.IntSlider(
+            value=30, min=5, max=50, step=1, description="t-SNE Perplexity:", continuous_update=False
+        )
+        analysis_type_widget = widgets.Dropdown(
+            options=["PCA", "t-SNE", "UMAP"], value="PCA", description="Analysis:"
+        )
+        overlay_type_widget = widgets.Dropdown(
+            options=["Class", "Prediction Outcome"], value="Class", description="Overlay:"
+        )
+
+        def update_visualizations(checkpoint_path, log_dir, perplexity, analysis_type, overlay_type):
+            model = self.model_class()
+            checkpoint = torch.load(checkpoint_path, map_location="cpu")
+            if "state_dict" in checkpoint:
+                model.load_state_dict(checkpoint["state_dict"])
+            else:
+                model.load_state_dict(checkpoint)
+            model.eval()
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            model = model.to(device)
+            visualizer = EmbeddingVisualizer(model, self.train_loader, device)
+            visualizer.extract_embeddings()
+            if analysis_type == "PCA":
+                if overlay_type == "Class":
+                    visualizer.plot_pca()
+                else:
+                    visualizer.plot_pca(overlay="outcome", model=model, dataloader=self.train_loader)
+            elif analysis_type == "UMAP":
+                if overlay_type == "Class":
+                    visualizer.plot_umap()
+                else:
+                    visualizer.plot_umap(overlay="outcome", model=model, dataloader=self.train_loader)
+            elif analysis_type == "t-SNE":
+                if overlay_type == "Class":
+                    visualizer.plot_tsne(perplexity=perplexity)
+                else:
+                    visualizer.plot_tsne(overlay="outcome", dataloader=self.train_loader, model=model, perplexity=perplexity)
+
+        ui = widgets.interactive(
+            update_visualizations,
+            checkpoint_path=checkpoint_widget,
+            log_dir=logdir_widget,
+            perplexity=perplexity_widget,
+            analysis_type=analysis_type_widget,
+            overlay_type=overlay_type_widget,
+        )
+        display(ui)
