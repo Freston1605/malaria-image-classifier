@@ -1,9 +1,6 @@
-import torch
 import torch.nn as nn
-import lightning as L
-import torch.nn.functional as F
-from malaria.model import BaseLitModel
 
+from malaria.model import BaseLitModel
 
 
 class MalariaLitModel(BaseLitModel):
@@ -35,7 +32,7 @@ class MalariaLitModel(BaseLitModel):
         Args:
             x (torch.Tensor): Input tensor of shape (batch_size, channels, height, width).
         Returns:
-            Tuple[torch.Tensor, torch.Tensor]: 
+            Tuple[torch.Tensor, torch.Tensor]:
                 - Output tensor after classification layer (e.g., logits or class scores).
                 - Embedding tensor representing the feature vector before classification.
         """
