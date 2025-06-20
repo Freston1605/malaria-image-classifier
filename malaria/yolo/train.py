@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     # Logging
     LOGS_DIR = "lightning_logs"
-    EXPERIMENT_NAME = "malaria_yolo"
+    EXPERIMENT_NAME = "yolo"
 
     # Reproducibility
     L.seed_everything(42, workers=True)
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     logger = TensorBoardLogger(save_dir=LOGS_DIR, name=EXPERIMENT_NAME)
 
     # Checkpoint callback
-        early_stop_callback = EarlyStopping(
+    early_stop_callback = EarlyStopping(
         monitor="val_loss",
         patience=10,
         mode="min",
@@ -62,8 +62,8 @@ if __name__ == "__main__":
         devices="auto",
         log_every_n_steps=10,
         deterministic=True,
-        default_root_dir="lightning_logs/yolo",
+        default_root_dir=LOGS_DIR,
         logger=logger,
-        callbacks=[checkpoint_callback],
+        callbacks=[early_stop_callback, checkpoint_callback],
     )
     trainer.fit(model, datamodule=datamodule)
