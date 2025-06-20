@@ -1,6 +1,6 @@
 import lightning as L
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
-from pytorch_lightning.loggers import TensorBoardLogger
+from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
+from lightning.pytorch.loggers import TensorBoardLogger
 
 from malaria.data import MalariaDataModule
 from malaria.yolo.model import YOLOLitModel
