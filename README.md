@@ -154,8 +154,8 @@ The model is a very simple and lightweight proof of concept and, despite that, i
 
 ## License
 
-MIT License
+GPL-3.0 license
 
 ## Author
 
-Franco (update with your full name or GitHub handle)
+Freston1605
