@@ -6,7 +6,7 @@ from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
 from lightning.pytorch.loggers import TensorBoardLogger
 
 from malaria.data import MalariaDataModule
-from malaria.model import MalariaLitModel
+from malaria.cnn.model import MalariaLitModel
 
 # Input data paths
 DATA_DIR = "data"

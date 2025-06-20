@@ -1,7 +1,7 @@
 import os
 import torch
 from malaria.data import MalariaDataModule
-from malaria.model import MalariaLitModel
+from malaria.cnn.model import MalariaLitModel
 from malaria.utils import save_submission
 
 # Input data paths
