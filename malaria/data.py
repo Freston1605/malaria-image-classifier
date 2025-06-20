@@ -19,7 +19,7 @@ class MalariaDataModule(L.LightningDataModule):
                 healthy/
     """
 
-    def __init__(self, data_dir="data", batch_size=32, num_workers=4, img_size=64):
+    def __init__(self, data_dir="dataset", batch_size=32, num_workers=4, img_size=64):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
