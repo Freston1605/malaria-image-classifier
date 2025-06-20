@@ -4,23 +4,19 @@ from malaria.data import MalariaDataModule
 from malaria.model import MalariaLitModel
 from malaria.utils import save_submission
 
-DATASET_DIR = "dataset"
-TEST_IMG = os.path.join(DATASET_DIR, "test_images")
-TRAIN_DATA = os.path.join(DATASET_DIR, "train_data.csv")
-TRAIN_IMG = os.path.join(DATASET_DIR, "train_images")
-OUTPUTS_DIR = "outputs"
-MODEL_PATH = os.path.join(OUTPUTS_DIR, "malaria_cnn.pth")
-SUBMISSION_PATH = os.path.join(OUTPUTS_DIR, "submission.csv")
+# Input data paths
+DATA_DIR = "data"
+RESULTS_DIR = "results/malaria_cnn"
+MODEL_PATH = "lightning_logs/malaria_cnn/version_0/checkpoints/last.ckpt"
+MODEL_VERSION = os.path.basename(os.path.dirname(os.path.dirname(MODEL_PATH)))
+SUBMISSION_PATH = os.path.join(RESULTS_DIR, f"submission_{MODEL_VERSION}.csv")
+
+# Hyperparameters
 BATCH_SIZE = 32
 
 if __name__ == "__main__":
     # Data
-    data_module = MalariaDataModule(
-        train_csv=TRAIN_DATA,
-        train_img_dir=TRAIN_IMG,
-        test_img_dir=TEST_IMG,
-        batch_size=BATCH_SIZE
-    )
+    data_module = MalariaDataModule(data_dir=DATA_DIR, batch_size=BATCH_SIZE)
     test_loader = data_module.test_dataloader()
 
     # Model
@@ -37,7 +33,7 @@ if __name__ == "__main__":
         for batch in test_loader:
             images, names = batch
             images = images.to(device)
-            logits, _ = model(images)
+            logits, _ = model.forward(images)
             batch_preds = logits.argmax(dim=1).cpu().numpy()
             preds.extend(batch_preds)
             img_names.extend(names)
