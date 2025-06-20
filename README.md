@@ -20,7 +20,7 @@ Below are examples of the two types of red blood cells used in this project:
 
 | Normal Red Blood Cell | Infected Red Blood Cell |
 |:--------------------:|:----------------------:|
-| ![Normal Cell](examples/normal_cell.png) | ![Infected Cell](examples/infected_cell.png.png) |
+| ![Normal Cell](examples/normal_cell.png) | ![Infected Cell](examples/infected_cell.png) |
 
 ## Methodology (For Everyone)
 
