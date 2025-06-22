@@ -77,21 +77,12 @@ Both models employed learning rate scheduling to improve training convergence an
 
 ### 5.1 Quantitative Performance
 
-The models were evaluated on a held-out validation set using standard classification metrics. Results are shown below:
+The models were evaluated on a held-out validation set using standard classification metrics. Results are summarized below:
 
-#### Baseline CNN
-
-| Metric     | Value  |
-|------------|--------|
-| **Sensitivity (Recall)** | 0.4992 |
-| **Specificity**          | 0.5068 |
-
-#### YOLO11n-cls (Transfer Learning)
-
-| Metric     | Value  |
-|------------|--------|
-| **Sensitivity (Recall)** | 0.4840 |
-| **Specificity**          | 0.5120 |
+| Model         | Sensitivity (Recall) | Specificity |
+|---------------|----------------------|-------------|
+| Baseline CNN  | 0.4992               | 0.5068      |
+| YOLO11n-cls   | 0.4840               | 0.5120      |
 
 Both models perform slightly better than random guessing but remain close to the 0.50 mark, indicating balanced but modest discrimination ability. Further training refinements, dataset augmentation, or model complexity tuning may improve results.
 
@@ -99,11 +90,21 @@ Both models perform slightly better than random guessing but remain close to the
 
 ### 5.2 Qualitative Insights
 
+#### Baseline CNN
+
 | Visualization | Description |
 |---------------|-------------|
 | ![t-SNE](results/malaria_cnn/visualization/tsne_version_0_outcomes.png) | Learned feature clusters |
 | ![UMAP](results/malaria_cnn/visualization/umap_version_0_outcomes.png) | Non-linear feature embedding |
 | ![PCA](results/malaria_cnn/visualization/pca_version_0_outcomes.png) | Linear projection of embeddings |
+
+#### YOLO11n-cls (Transfer Learning)
+
+| Visualization | Description |
+|---------------|-------------|
+| ![t-SNE](results/yolo11n-cls/visualization/tsne_outcome.png) | Learned feature clusters |
+| ![UMAP](results/yolo11n-cls/visualization/umap_outcome.png) | Non-linear feature embedding |
+| ![PCA](results/yolo11n-cls/visualization/pca_outcome.png) | Linear projection of embeddings |
 
 ---
 
