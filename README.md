@@ -57,7 +57,15 @@ Both models employed learning rate scheduling to improve training convergence an
 
 ---
 
-## 4. Model Training and Evaluation
+## 4. Cell Image Examples
+
+Below are examples of the two types of red blood cells used in this project:
+
+| Normal Red Blood Cell | Infected Red Blood Cell |
+|:---------------------:|:------------------------:|
+| ![Normal Cell](examples/normal_cell.png) | ![Infected Cell](examples/infected_cell.png) |
+
+## 5. Model Training and Evaluation
 
 ### Training Protocol
 
@@ -73,7 +81,7 @@ Both models employed learning rate scheduling to improve training convergence an
 
 ---
 
-## 5. Results
+## 6. Results
 
 ### 5.1 Quantitative Performance
 
@@ -108,7 +116,7 @@ Both models perform slightly better than random guessing but remain close to the
 
 ---
 
-## 6. Comparative Analysis
+## 7. Comparative Analysis
 
 The following table summarizes the performance and characteristics of both models:
 
@@ -121,7 +129,7 @@ Despite being pretrained on a large dataset, the YOLO11n-cls model shows only ma
 
 ---
 
-## 7. Model Architecture: YOLO11n-cls
+## 8. Model Architecture: YOLO11n-cls
 
 YOLO11n-cls is a classification-specialized version of the YOLO11 architecture optimized for edge devices and efficient inference. It includes:
 
@@ -134,7 +142,7 @@ More details available in the [Ultralytics documentation](https://docs.ultralyti
 
 ---
 
-## 8. Reproducibility
+## 9. Reproducibility
 
 ### Setup
 
@@ -167,7 +175,7 @@ Interactive exploration is available via:
 
 ---
 
-## 9. File Structure
+## 10. File Structure
 
 | Path | Description |
 |------|-------------|
@@ -179,7 +187,7 @@ Interactive exploration is available via:
 
 ---
 
-## 10. Discussion
+## 11. Discussion
 
 The results indicate that while a lightweight, pretrained classifier like YOLO11n-cls can be effective for transfer learning, the complexity of biological image data often requires deeper or more specialized architectures, as well as larger and more diverse datasets. Embedding visualizations demonstrate some separation between healthy and infected samples, validating the model's ability to extract relevant features, though classification boundaries remain ambiguous in some cases.
 
