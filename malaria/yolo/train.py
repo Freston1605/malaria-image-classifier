@@ -14,9 +14,16 @@ if __name__ == "__main__":
     LR = 1e-3
     MAX_EPOCHS = 100
 
+    # YOLO model selection
+    YOLO_MODEL_NAME = "yolo11n-cls.pt"  # Change this string to any YOLO model variant, e.g., "yolo11s-s.pt"
+
     # Logging
     LOGS_DIR = "lightning_logs"
-    EXPERIMENT_NAME = "yolo"
+    EXPERIMENT_NAME = f"yolo/{YOLO_MODEL_NAME.replace('.pt','')}"
+
+    # Checkpoint resume logic
+    RESUME_FROM_CHECKPOINT = None  # Set path to checkpoint file to resume, or None to start fresh
+    # Example: RESUME_FROM_CHECKPOINT = f"{LOGS_DIR}/{EXPERIMENT_NAME}/checkpoints/epoch09-val_acc0.95.ckpt"
 
     # Reproducibility
     L.seed_everything(42, workers=True)
@@ -34,12 +41,12 @@ if __name__ == "__main__":
 
     # Model
     num_classes = datamodule.num_classes()
-    model = YOLOLitModel(num_classes=num_classes, lr=LR)
+    model = YOLOLitModel(model_path=YOLO_MODEL_NAME, num_classes=num_classes, lr=LR)
 
-    # Logger
+    # Logger (instantiate before callbacks so we can use log_dir)
     logger = TensorBoardLogger(save_dir=LOGS_DIR, name=EXPERIMENT_NAME)
 
-    # Checkpoint callback
+    # Checkpoint callback (use logger.log_dir for versioned checkpoints)
     early_stop_callback = EarlyStopping(
         monitor="val_loss",
         patience=10,
@@ -48,7 +55,7 @@ if __name__ == "__main__":
     )
 
     checkpoint_callback = ModelCheckpoint(
-        dirpath=f"{LOGS_DIR}/{EXPERIMENT_NAME}/checkpoints",
+        dirpath=f"{logger.log_dir}/checkpoints",
         filename="epoch{epoch:02d}-val_acc{val_acc:.2f}",
         monitor="val_acc",
         mode="max",
@@ -67,10 +74,6 @@ if __name__ == "__main__":
         default_root_dir=LOGS_DIR,
         logger=logger,
         callbacks=[early_stop_callback, checkpoint_callback],
+        resume_from_checkpoint=RESUME_FROM_CHECKPOINT,
     )
-    trainer.fit(
-        model,
-        datamodule=datamodule,
-        train_dataloaders=train_loader,
-        val_dataloaders=val_loader,
-    )
+    trainer.fit(model, datamodule=datamodule)
