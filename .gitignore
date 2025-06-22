@@ -4,3 +4,4 @@ submissions/
 dataset/
 data/
 __pycache__
+yolo11n-cls.pt

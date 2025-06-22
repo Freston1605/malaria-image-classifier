@@ -1,0 +1,4 @@
+freeze_backbone: true
+lr: 0.001
+model_path: null
+num_classes: 2

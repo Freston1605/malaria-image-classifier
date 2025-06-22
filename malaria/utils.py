@@ -31,13 +31,9 @@ class EmbeddingVisualizer:
     def extract_embeddings(self):
         """
         Extracts embeddings and corresponding labels from the dataset using the model.
-        This method sets the model to evaluation mode and iterates over the dataloader,
-        passing each batch of images through the model to obtain embeddings. The embeddings
-        and their associated labels are collected and concatenated into arrays.
+        Handles both standard models (output, embedding) and YOLOLitModel (output only).
         Returns:
-            tuple: A tuple containing:
-                - embeddings (np.ndarray): Array of extracted embeddings for all samples.
-                - labels (np.ndarray): Array of corresponding labels for all samples.
+            tuple: (embeddings, labels)
         """
 
         self.model.eval()
@@ -46,7 +42,16 @@ class EmbeddingVisualizer:
         with torch.no_grad():
             for images, labels in self.dataloader:
                 images = images.to(self.device)
-                _, emb = self.model(images)
+                output = self.model(images)
+                # Handle standard models (output, embedding) and YOLOLitModel (output only)
+                if isinstance(output, tuple) and len(output) == 2:
+                    _, emb = output
+                else:
+                    # For YOLOLitModel, use the output as embedding
+                    emb = output
+                # If emb is not already a tensor, convert to tensor
+                if not isinstance(emb, torch.Tensor):
+                    emb = torch.tensor(emb)
                 all_embeddings.append(emb.cpu().numpy())
                 all_labels.extend(labels.cpu().numpy())
         self.embeddings = np.concatenate(all_embeddings, axis=0)
@@ -353,6 +358,7 @@ class EmbeddingVisualizer:
     def compute_outcome_masks(self, model, dataloader):
         """
         Computes boolean masks for TP, TN, FP, FN given a model and dataloader.
+        Handles both standard models (tuple output) and YOLOLitModel (tensor output).
         Returns: TP, TN, FP, FN (all boolean numpy arrays)
         """
         model.eval()
@@ -362,7 +368,15 @@ class EmbeddingVisualizer:
             for images, _ in dataloader:
                 images = images.to(device)
                 outputs = model(images)
-                preds = torch.argmax(outputs[0], dim=1)
+                # Handle both tuple and tensor outputs
+                if isinstance(outputs, tuple):
+                    logits = outputs[0]
+                else:
+                    logits = outputs
+                # If logits is 1D, add batch dimension
+                if logits.dim() == 1:
+                    logits = logits.unsqueeze(0)
+                preds = torch.argmax(logits, dim=1)
                 all_preds.extend(preds.cpu().numpy())
         all_preds = np.array(all_preds)
         true_labels = np.array(self.labels)
