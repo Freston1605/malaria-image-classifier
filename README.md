@@ -111,17 +111,17 @@ Below are the main visual results for both the baseline CNN and the YOLO11n-cls 
 ### YOLO11n-cls Transfer Learning
 
 - **Training Metrics:**
-  ![YOLO Training Metrics](results/malaria_cnn/visualization/training_metrics.png)
+  ![YOLO Training Metrics](results/yolo11n-cls/visualization/train_metrics.png)
 - **t-SNE Embedding Visualization:**
-  ![YOLO t-SNE Visualization](results/malaria_cnn/visualization/tsne_version_0_outcomes.png)
+  ![YOLO t-SNE Visualization](results/yolo11n-cls/visualization/tsne_outcome.png)
 - **UMAP Embedding Visualization:**
-  ![YOLO UMAP Visualization](results/malaria_cnn/visualization/umap_version_0_outcomes.png)
+  ![YOLO UMAP Visualization](results/yolo11n-cls/visualization/umap_outcome.png)
 - **PCA Embedding Visualization:**
-  ![YOLO PCA Visualization](results/malaria_cnn/visualization/pca_version_0_outcomes.png)
+  ![YOLO PCA Visualization](results/yolo11n-cls/visualization/pca_outcome.png)
 
 *Note: Update the image paths above if you save YOLO results to a different directory or with different filenames. If you have separate folders for CNN and YOLO results, adjust accordingly for clarity.*
 
-## YOLO11n-cls Model Architecture (Proof of Concept)
+## YOLO11n-cls Model Architecture
 
 The YOLO11n-cls model is a lightweight, state-of-the-art neural network designed for image classification. It is part of the Ultralytics YOLO11 family, which is known for its speed, efficiency, and versatility across computer vision tasks. The `n-cls` variant is the smallest classification model, making it ideal for rapid experimentation and deployment on resource-constrained devices.
 
