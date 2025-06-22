@@ -83,7 +83,7 @@ Below are examples of the two types of red blood cells used in this project:
 
 ## 6. Results
 
-### 5.1 Quantitative Performance
+### 6.1 Quantitative Performance
 
 The models were evaluated on a held-out validation set using standard classification metrics. Results are summarized below:
 
@@ -96,7 +96,7 @@ Both models perform slightly better than random guessing but remain close to the
 
 ---
 
-### 5.2 Qualitative Insights
+### 6.2 Qualitative Insights
 
 #### Baseline CNN
 
