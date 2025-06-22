@@ -29,6 +29,8 @@ if __name__ == "__main__":
         img_size=IMG_SIZE,
     )
     datamodule.setup()
+    train_loader = datamodule.train_dataloader()
+    val_loader = datamodule.val_dataloader()
 
     # Model
     num_classes = datamodule.num_classes()
@@ -66,4 +68,9 @@ if __name__ == "__main__":
         logger=logger,
         callbacks=[early_stop_callback, checkpoint_callback],
     )
-    trainer.fit(model, datamodule=datamodule)
+    trainer.fit(
+        model,
+        datamodule=datamodule,
+        train_dataloaders=train_loader,
+        val_dataloaders=val_loader,
+    )
