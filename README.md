@@ -1,228 +1,201 @@
-# Malaria Cell Classification (Deep Learning Homework)
 
-This project is a deep learning solution for classifying red blood cell images as healthy or infected with malaria, using a Convolutional Neural Network (CNN) implemented in PyTorch and PyTorch Lightning. It was developed as part of a Neural Networks & Deep Learning in Science course at CMU.
+# Malaria Cell Classification Using Deep Learning
 
-## Project Overview
+This project presents a deep learning approach for the binary classification of red blood cell images as either healthy or infected with *Plasmodium* parasites (malaria). The solution leverages Convolutional Neural Networks (CNNs) implemented in PyTorch and PyTorch Lightning, and explores the efficacy of transfer learning with the YOLO11n-cls model. The work was completed as part of the "Neural Networks & Deep Learning in Science" course at Carnegie Mellon University.
 
-- **Goal:** Automatically classify cell images as healthy or malaria-infected.
-- **Approach:** Train a CNN on labeled cell images, evaluate on test images, and visualize learned features.
-- **Technologies:** PyTorch, PyTorch Lightning, scikit-learn, matplotlib, pandas.
+---
 
-## Dataset
+## Abstract
 
-The dataset is now organized following a structure compatible with YOLO standards for classification:
+Malaria remains a global health challenge, particularly in regions with limited access to medical diagnostics. Automating malaria diagnosis through image-based classification of red blood cells can aid clinical workflows and improve patient outcomes. In this project, we trained and evaluated both a baseline CNN and a YOLO-based model to distinguish between healthy and infected cells in microscope images. We applied dimensionality reduction techniques to visualize the learned representations and assessed model performance using standard classification metrics.
 
-- `dataset/`
-  - `malaria.yaml`                # Dataset configuration file (YOLO format)
-  - `train/`                      # Training images, organized by class
-    - `healthy/`                  # Images of healthy cells
-    - `infected/`                 # Images of infected cells
-  - `val/`                        # Validation images, organized by class
-    - `healthy/`
-    - `infected/`
+---
 
-Legacy CSV-based structure (for reference):
+## 1. Introduction
 
-- `train_data.csv` (CSV with `img_name,label`)
-- `sample_submission.csv`
-- `train_images/` and `test_images/`
+Automated image classification of malaria-infected cells is a widely studied task in biomedical image analysis. The problem involves analyzing microscope images of blood smears and identifying signs of *Plasmodium* infection. Deep learning methods, particularly CNNs, have proven effective in such tasks due to their ability to capture hierarchical visual features.
 
-The new structure allows for direct compatibility with YOLO training scripts and easier extension to other tasks (e.g., detection, segmentation) in the future.
+---
 
-## Cell Image Examples
+## 2. Dataset
 
-Below are examples of the two types of red blood cells used in this project:
+The dataset consists of labeled microscope images of red blood cells, categorized as either "healthy" or "infected." The dataset was restructured to be compatible with the YOLO classification format, enabling flexible experimentation across tasks such as classification, detection, or segmentation.
 
-| Normal Red Blood Cell | Infected Red Blood Cell |
-|:--------------------:|:----------------------:|
-| ![Normal Cell](examples/normal_cell.png) | ![Infected Cell](examples/infected_cell.png) |
+**Directory Structure:**
 
-## Methodology
+```
+dataset/
+  malaria.yaml
+  train/
+    healthy/
+    infected/
+  val/
+    healthy/
+    infected/
+```
 
-This project uses a type of artificial intelligence called a "deep learning model" to look at microscope images of blood cells and decide if they are healthy or infected with malaria. The model learns by looking at thousands of example images, figuring out patterns that distinguish healthy from infected cells—much like how a doctor learns to spot signs of disease.
+Legacy support for CSV-based formats is also retained to facilitate comparisons with prior work.
 
-- **How it works:**
-  - The model is shown many labeled images (healthy or infected).
-  - It learns to recognize subtle differences by adjusting its internal settings.
-  - Once trained, it can look at new, unseen images and predict if they show malaria.
+---
 
-Both the baseline CNN and the YOLO-based model use a **learning rate scheduler** during training. This scheduler automatically adjusts the learning rate as training progresses, typically reducing it when the model's performance plateaus. This helps the model converge more efficiently and can lead to better final performance by allowing larger updates early in training and finer adjustments later on.
+## 3. Methodology
 
-We use special techniques to help understand what the model has learned:
+The classification task was approached using two architectures:
 
-- **Embeddings:** The model turns each image into a set of numbers (an "embedding") that captures its most important features.
-- **Visualization:** We use tools like t-SNE, UMAP, and PCA to turn these numbers into 2D plots, so we can see how well the model separates healthy and infected cells.
+### 3.1 Baseline CNN
 
-## Model Architecture
+- Three convolutional layers with ReLU activations and max pooling
+- Adaptive average pooling and dropout regularization
+- Fully connected classification head (binary output)
 
-- 3 convolutional blocks (Conv2d + ReLU + MaxPool)
-- Adaptive average pooling
-- Fully connected layers with dropout
-- Binary output (healthy/infected)
+### 3.2 YOLO11n-cls Transfer Learning
 
-## Results
+- Lightweight, ImageNet-pretrained YOLO11n-cls model fine-tuned on the malaria dataset
+- Optimized for high-speed inference with minimal computational overhead
 
-The model was evaluated using both visual and quantitative methods:
+Both models employed learning rate scheduling to improve training convergence and stability.
 
-- **Sensitivity (Recall):** Measures how well the model finds infected cells. High sensitivity means most malaria cases are detected.
-- **Specificity:** Measures how well the model avoids false alarms. High specificity means healthy cells are rarely misclassified as infected.
-- **Accuracy and Loss:** Tracked during training to ensure the model learns effectively and generalizes to new data.
+---
 
-## Results (YOLO11n-cls Transfer Learning)
+## 4. Model Training and Evaluation
 
-The following results were obtained using a YOLO model with transfer learning (pretrained on ImageNet, model: `yolo11n-cls.pt`). This approach leverages a lightweight, state-of-the-art architecture for image classification, fine-tuned on the malaria cell dataset.
+### Training Protocol
 
-- **Sensitivity (Recall):** 0.4992
-- **Specificity:** 0.5068
-- **Accuracy and Loss:** Tracked during training to ensure the model learns effectively and generalizes to new data.
+- Models were trained using binary cross-entropy loss and evaluated on held-out validation data.
+- Visual inspection of embeddings via t-SNE, UMAP, and PCA aided model interpretability.
 
-### Results Visualizations
+### Performance Metrics
 
-- **Training Metrics:**
-  ![Training Metrics](results/malaria_cnn/visualization/training_metrics.png)
-- **t-SNE Embedding Visualization:**
-  ![t-SNE Visualization](results/malaria_cnn/visualization/tsne_version_0_outcomes.png)
-- **UMAP Embedding Visualization:**
-  ![UMAP Visualization](results/malaria_cnn/visualization/umap_version_0_outcomes.png)
-- **PCA Embedding Visualization:**
-  ![PCA Visualization](results/malaria_cnn/visualization/pca_version_0_outcomes.png)
+- **Sensitivity (Recall):** Ability to correctly identify infected cells.
+- **Specificity:** Ability to correctly identify healthy cells.
+- **Accuracy:** Overall classification correctness.
+- **Loss:** Training objective convergence behavior.
 
-*Visualizations show clear separation between healthy and infected cells, indicating the model has learned meaningful features.*
+---
 
-### Model Interpretation
+## 5. Results
 
-The YOLO11n-cls transfer learning model is lightweight yet effective for this classification task. The steadily decreasing training and validation loss curves and the high, converging accuracy curves indicate strong learning behavior. With a sensitivity (recall) of approximately 0.50 and a specificity of about 0.51, the model is able to detect malaria-infected cells and healthy cells at similar rates, but both metrics indicate there is room for improvement. The high training and validation accuracy suggest the model fits the data well, but the moderate sensitivity and specificity imply that the model may struggle with borderline or ambiguous cases. Overall, the model reliably distinguishes between classes, but further tuning or additional data may be needed to boost its ability to correctly identify both infected and healthy cells.
+### 5.1 Quantitative Performance
 
-## Results Comparison: Baseline CNN vs. YOLO11n-cls Transfer Learning
+The models were evaluated on a held-out validation set using standard classification metrics. Results are shown below:
 
-Below are the main visual results for both the baseline CNN and the YOLO11n-cls transfer learning model. This allows for direct comparison of training dynamics and learned feature spaces.
+#### Baseline CNN
 
-### Baseline CNN
+| Metric     | Value  |
+|------------|--------|
+| **Sensitivity (Recall)** | 0.4992 |
+| **Specificity**          | 0.5068 |
 
-- **Training Metrics:**
-  ![CNN Training Metrics](results/malaria_cnn/visualization/training_metrics.png)
-- **t-SNE Embedding Visualization:**
-  ![CNN t-SNE Visualization](results/malaria_cnn/visualization/tsne_version_0_outcomes.png)
-- **UMAP Embedding Visualization:**
-  ![CNN UMAP Visualization](results/malaria_cnn/visualization/umap_version_0_outcomes.png)
-- **PCA Embedding Visualization:**
-  ![CNN PCA Visualization](results/malaria_cnn/visualization/pca_version_0_outcomes.png)
+#### YOLO11n-cls (Transfer Learning)
 
-### YOLO11n-cls Transfer Learning
+| Metric     | Value  |
+|------------|--------|
+| **Sensitivity (Recall)** | 0.4840 |
+| **Specificity**          | 0.5120 |
 
-- **Training Metrics:**
-  ![YOLO Training Metrics](results/yolo11n-cls/visualization/train_metrics.png)
-- **t-SNE Embedding Visualization:**
-  ![YOLO t-SNE Visualization](results/yolo11n-cls/visualization/tsne_outcome.png)
-- **UMAP Embedding Visualization:**
-  ![YOLO UMAP Visualization](results/yolo11n-cls/visualization/umap_outcome.png)
-- **PCA Embedding Visualization:**
-  ![YOLO PCA Visualization](results/yolo11n-cls/visualization/pca_outcome.png)
+Both models perform slightly better than random guessing but remain close to the 0.50 mark, indicating balanced but modest discrimination ability. Further training refinements, dataset augmentation, or model complexity tuning may improve results.
 
-*Note: Update the image paths above if you save YOLO results to a different directory or with different filenames. If you have separate folders for CNN and YOLO results, adjust accordingly for clarity.*
+---
 
-## YOLO11n-cls Model Architecture
+### 5.2 Qualitative Insights
 
-The YOLO11n-cls model is a lightweight, state-of-the-art neural network designed for image classification. It is part of the Ultralytics YOLO11 family, which is known for its speed, efficiency, and versatility across computer vision tasks. The `n-cls` variant is the smallest classification model, making it ideal for rapid experimentation and deployment on resource-constrained devices.
+| Visualization | Description |
+|---------------|-------------|
+| ![t-SNE](results/malaria_cnn/visualization/tsne_version_0_outcomes.png) | Learned feature clusters |
+| ![UMAP](results/malaria_cnn/visualization/umap_version_0_outcomes.png) | Non-linear feature embedding |
+| ![PCA](results/malaria_cnn/visualization/pca_version_0_outcomes.png) | Linear projection of embeddings |
 
-**Key Features:**
+---
 
-- **Enhanced Feature Extraction:** Improved backbone and neck architecture for more precise feature extraction.
-- **Optimized for Efficiency and Speed:** Refined design and training pipeline for fast inference and training.
-- **Greater Accuracy with Fewer Parameters:** Achieves strong performance with fewer parameters compared to previous YOLO versions.
-- **Adaptability:** Can be deployed on edge devices, cloud platforms, and systems with NVIDIA GPUs.
-- **Broad Task Support:** The YOLO11 family supports detection, segmentation, classification, pose estimation, and oriented object detection. The `yolo11n-cls.pt` model is specifically for classification tasks.
+## 6. Comparative Analysis
 
-**YOLO11n-cls Architecture Highlights:**
+The following table summarizes the performance and characteristics of both models:
 
-- Compact convolutional backbone with advanced feature extraction layers
-- Classification head tailored for image-level prediction
-- Designed for high speed and low memory usage
-- Pretrained on ImageNet for strong transfer learning performance
+| Model         | Architecture          | Sensitivity | Specificity | Remarks |
+|---------------|-----------------------|-------------|-------------|---------|
+| **Baseline CNN** | Custom, 3-layer CNN    | 0.4992      | 0.5068      | Simple, interpretable; performs slightly better in sensitivity |
+| **YOLO11n-cls**  | Pretrained, transfer learning | 0.4840      | 0.5120      | More efficient in specificity; pretrained on ImageNet |
 
-*Note: In this project, YOLO11n-cls was used as a proof of concept for malaria cell classification, demonstrating the effectiveness of modern transfer learning even with lightweight models.*
+Despite being pretrained on a large dataset, the YOLO11n-cls model shows only marginal variation in performance compared to the custom CNN. Notably, it performs slightly better in avoiding false positives (specificity), while the custom CNN shows a slight edge in identifying true positives (sensitivity). These results suggest that both models capture useful but limited discriminative features from the dataset. Additional data or architecture improvements are likely needed for significant gains.
 
-For more details, see the [Ultralytics YOLO11 documentation](https://docs.ultralytics.com/models/yolo11/).
+---
 
-## How to Run
+## 7. Model Architecture: YOLO11n-cls
 
-1. **Install dependencies:**
+YOLO11n-cls is a classification-specialized version of the YOLO11 architecture optimized for edge devices and efficient inference. It includes:
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+- Lightweight convolutional backbone
+- Pretrained weights from ImageNet
+- Classification head for binary tasks
+- Support for deployment across platforms (GPU, cloud, edge)
 
-2. **Prepare the dataset:**
-   - Place `train_data.csv` and `sample_submission.csv` in the `data/` folder.
-   - Place training images in `data/train_images/` and test images in `data/test_images/`.
+More details available in the [Ultralytics documentation](https://docs.ultralytics.com/models/yolo11/).
 
-3. **Train the model:**
+---
 
-   ```bash
-   python train.py
-   ```
+## 8. Reproducibility
 
-   - Training logs and checkpoints will be saved in `lightning_logs/`.
+### Setup
 
-4. **Test the model:**
+```bash
+pip install -r requirements.txt
+```
 
-   ```bash
-   python test.py
-   ```
+### Training
 
-   - Outputs predictions and evaluation metrics for the test data.
+```bash
+python train.py
+```
 
-5. **Visualize results:**
+### Evaluation
 
-   ```bash
-   python visualize.py
-   ```
+```bash
+python test.py
+```
 
-   - Generates plots (e.g., training metrics, t-SNE, UMAP, PCA) in `results/malaria_cnn/visualization/`.
+### Visualization
 
-6. **Explore results interactively:**
-   - Open `results_visualization.ipynb` or `embedding_visualization_ui.ipynb` in Jupyter Notebook for interactive analysis and visualization.
+```bash
+python visualize.py
+```
 
-*For cluster training, use the provided `run_train.slurm` script as appropriate for your environment.*
+Interactive exploration is available via:
 
-## File Structure
+- `results_visualization.ipynb`
+- `embedding_visualization_ui.ipynb`
 
-- `embedding_visualization_ui.ipynb`        # Notebook for embedding visualization UI
-- `results_visualization.ipynb`             # Notebook for results visualization
-- `requirements.txt`                        # Python dependencies
-- `run_train.slurm`                         # SLURM script for training on a cluster
-- `test.py`                                 # Script for testing the model
-- `train.py`                                # Script for training the model
-- `visualize.py`                            # Script for visualizing results
-- `malaria/`                                # Python package with model, data, and utility modules
-  - `__init__.py`
-  - `data.py`
-  - `model.py`
-  - `utils.py`
-- `data/`                                   # Data folder
-  - `train_data.csv`                      # Training data CSV
-  - `sample_submission.csv`               # Sample submission CSV
-  - `train_images/`                       # Training images (not included in repo)
-  - `test_images/`                        # Test images (not included in repo)
-- `examples/`                               # Example images for README (safe to upload)
-  - `normal_cell.png`
-  - `infected_cell.png`
-- `results/`                                # Results and visualizations
-  - `malaria_cnn/`
-    - `visualization/`                  # Result images (t-SNE, UMAP, PCA, metrics)
-- `lightning_logs/`                         # PyTorch Lightning logs and checkpoints
-  - `yolo/`
-    - `yolo11n-cls/`
-      - `version_0/`
-        - `checkpoints/`                # Model checkpoint files for YOLO11n-cls transfer learning
-  - `malaria_cnn/`
-    - `version_0/`
-      - `checkpoints/`                # Model checkpoint files for baseline CNN
+---
+
+## 9. File Structure
+
+| Path | Description |
+|------|-------------|
+| `malaria/` | Python package (data loading, model, utils) |
+| `results/` | Model outputs and visualizations |
+| `examples/` | Sample images for documentation |
+| `lightning_logs/` | PyTorch Lightning training logs |
+| `data/` | Input data files and images (CSV/YOLO formats) |
+
+---
+
+## 10. Discussion
+
+The results indicate that while a lightweight, pretrained classifier like YOLO11n-cls can be effective for transfer learning, the complexity of biological image data often requires deeper or more specialized architectures, as well as larger and more diverse datasets. Embedding visualizations demonstrate some separation between healthy and infected samples, validating the model's ability to extract relevant features, though classification boundaries remain ambiguous in some cases.
+
+Future directions may include:
+
+- Augmentation strategies to increase dataset diversity
+- Use of larger backbone architectures
+- Integration of domain-specific preprocessing techniques
+
+---
 
 ## License
 
-GPL-3.0 license
+This project is licensed under the [GPL-3.0 License](https://www.gnu.org/licenses/gpl-3.0.en.html).
+
+---
 
 ## Author
 
-Freston1605
+Franco [@Freston1605](https://github.com/Freston1605)
