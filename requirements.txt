@@ -1,6 +1,6 @@
 ipython==8.12.3
 ipywidgets==8.1.7
-lightning==2.5.1.post0
+lightning==2.5.2
 matplotlib==3.10.3
 numpy==2.3.1
 pandas==2.3.0
@@ -8,6 +8,5 @@ scikit_learn==1.7.0
 tensorboard==2.19.0
 torch==2.7.1
 torchvision==0.22.1
-ultralytics==8.3.157
+ultralytics==8.3.158
 umap==0.1.1
-umap_learn==0.5.7
