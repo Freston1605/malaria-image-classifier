@@ -1,3 +1,4 @@
+
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
@@ -6,6 +7,7 @@ from malaria.data import MalariaDataModule
 from malaria.yolo.model import YOLOLitModel
 
 if __name__ == "__main__":
+
     # Hyperparameters
     DATA_DIR = "dataset"
     BATCH_SIZE = 32
@@ -13,6 +15,7 @@ if __name__ == "__main__":
     IMG_SIZE = 64
     LR = 1e-3
     MAX_EPOCHS = 100
+    AUGMENT = False
 
     # YOLO model selection
     YOLO_MODEL_NAME = "yolo11n-cls.pt"  # Change this string to any YOLO model variant, e.g., "yolo11s-s.pt"
@@ -34,6 +37,7 @@ if __name__ == "__main__":
         batch_size=BATCH_SIZE,
         num_workers=NUM_WORKERS,
         img_size=IMG_SIZE,
+        augment=AUGMENT,
     )
     datamodule.setup()
     train_loader = datamodule.train_dataloader()

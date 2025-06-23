@@ -80,6 +80,9 @@ The classification task was approached using two architectures:
 - Optimized for high-speed inference with minimal computational overhead
 
 Both models employed learning rate scheduling to improve training convergence and stability.
+An optional augmentation pipeline can further increase dataset diversity. During training,
+images may undergo random horizontal and vertical flips, rotations up to 15 degrees,
+and color jitter adjustments of brightness, contrast, saturation, and hue.
 
 ---
 
@@ -225,7 +228,8 @@ The results indicate that while a lightweight, pretrained classifier like YOLO11
 
 Future directions may include:
 
-- Augmentation strategies to increase dataset diversity
+- Experimentation with the built-in augmentation pipeline
+  (flips, rotations and color jitter) now toggled via the `AUGMENT` setting
 - Use of larger backbone architectures
 - Integration of domain-specific preprocessing techniques
 
