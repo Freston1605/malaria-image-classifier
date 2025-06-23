@@ -204,6 +204,7 @@ Interactive exploration is available via:
 
 - `results_visualization.ipynb`
 - `embedding_visualization_ui.ipynb`
+- Run the Streamlit demo with `streamlit run demo/app.py`
 
 ---
 
@@ -216,6 +217,7 @@ Interactive exploration is available via:
 | `examples/` | Sample images for documentation |
 | `lightning_logs/` | PyTorch Lightning training logs |
 | `data/` | Input data files and images (CSV/YOLO formats) |
+| `demo/` | Streamlit demo application |
 
 ---
 
