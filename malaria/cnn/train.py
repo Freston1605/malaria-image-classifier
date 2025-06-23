@@ -27,8 +27,11 @@ BATCH_SIZE = 32
 MAX_EPOCHS = 500
 LR = 1e-3
 SEED = 42
+# Toggle data augmentation
+AUGMENT = False
 
 if __name__ == "__main__":
+
     # Reproducibility
     torch.manual_seed(SEED)
     L.seed_everything(SEED, workers=True)
@@ -44,6 +47,7 @@ if __name__ == "__main__":
     data_module = MalariaDataModule(
         data_dir=DATA_DIR,
         batch_size=BATCH_SIZE,
+        augment=AUGMENT,
     )
 
     # Model

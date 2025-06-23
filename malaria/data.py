@@ -17,30 +17,54 @@ class MalariaDataModule(L.LightningDataModule):
             val/
                 infected/
                 healthy/
+    Optional data augmentations (flips, rotations, color jitter) can be enabled
+    via the ``augment`` flag.
     """
 
-    def __init__(self, data_dir="dataset", batch_size=32, num_workers=4, img_size=64):
+    def __init__(
+        self,
+        data_dir="dataset",
+        batch_size=32,
+        num_workers=4,
+        img_size=64,
+        augment=False,
+    ):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.img_size = img_size
+        self.augment = augment
         self.train_dataset = None
         self.val_dataset = None
 
     def setup(self, stage=None):
-        transform = transforms.Compose(
-            [
-                transforms.Resize((self.img_size, self.img_size)),
-                transforms.ToTensor(),
-                # Add more augmentations here if needed
-            ]
-        )
+        train_transforms = [transforms.Resize((self.img_size, self.img_size))]
+        if self.augment:
+            train_transforms.extend(
+                [
+                    transforms.RandomHorizontalFlip(),
+                    transforms.RandomVerticalFlip(),
+                    transforms.RandomRotation(15),
+                    transforms.ColorJitter(
+                        brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1
+                    ),
+                ]
+            )
+        train_transforms.append(transforms.ToTensor())
+
+        val_transforms = [
+            transforms.Resize((self.img_size, self.img_size)),
+            transforms.ToTensor(),
+        ]
+
         self.train_dataset = ImageFolder(
-            os.path.join(self.data_dir, "train"), transform=transform
+            os.path.join(self.data_dir, "train"),
+            transform=transforms.Compose(train_transforms),
         )
         self.val_dataset = ImageFolder(
-            os.path.join(self.data_dir, "val"), transform=transform
+            os.path.join(self.data_dir, "val"),
+            transform=transforms.Compose(val_transforms),
         )
 
     def train_dataloader(self):
