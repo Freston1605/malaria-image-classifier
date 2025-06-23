@@ -194,6 +194,12 @@ python test.py
 python visualize.py
 ```
 
+### Testing
+
+```bash
+pytest -v
+```
+
 Interactive exploration is available via:
 
 - `results_visualization.ipynb`
