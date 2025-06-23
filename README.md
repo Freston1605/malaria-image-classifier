@@ -21,6 +21,32 @@ Automated image classification of malaria-infected cells is a widely studied tas
 
 The dataset consists of labeled microscope images of red blood cells, categorized as either "healthy" or "infected." The dataset was restructured to be compatible with the YOLO classification format, enabling flexible experimentation across tasks such as classification, detection, or segmentation.
 
+Raw images are provided in the private Kaggle competition [s25-09616-hw2](https://www.kaggle.com/competitions/s25-09616-hw2). You may need to accept the competition rules to obtain access. Download the archive with the Kaggle API:
+
+```bash
+kaggle competitions download -c s25-09616-hw2
+```
+
+After extraction you should have the following directory layout:
+
+```text
+data/
+├── sample_submission.csv
+├── train/
+│   └── images
+├── train_data.csv
+└── val/
+    └── images
+```
+
+To reorganize the images for training, run the split script:
+
+```bash
+python scripts/split_images_by_csv.py
+```
+
+This script reads `data/train_data.csv`, splits the images into train and validation subsets, and builds the directory layout below.
+
 **Directory Structure:**
 
 ```
